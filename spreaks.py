@@ -33,6 +33,7 @@ class User:
         self.website_url = user_info.get('website_url')
         self.facebook_permalink = user_info.get('facebook_permalink')
         self.twitter_username = user_info.get('twitter_username')
+        self.shows = self.__get_shows()
 
     def __repr__(self) -> str:
         return f"{self.fullname} ({self.username} - {self.user_id}): {self.description}"
@@ -94,6 +95,30 @@ class User:
     #     items = r.json().get('response').get('items')
     #     blocked_ids = [items[i].get('user_id') for i in range(len(items))]
     #     return blocked_ids
+
+    def __get_shows(self):
+        """Get a list of show_id from the user
+        TODO: by default only 50 elements given. Check 'next_url' item in the json file
+        """
+        r = requests.get(
+            f'https://api.spreaker.com/v2/users/{self.user_id}/shows')
+        items = r.json().get('response').get('items')
+        shows = [items[i].get('show_id') for i in range(len(items))]
+        return shows
+
+    # def __get_favorites(self):
+    #     """Get a list of favorite shows of the user
+    #     Requires authentication and ownership...
+    #     TODO: by default only 50 elements given. Check 'next_url' item in the json file
+    #     TODO: show favorites requires owner authentication. Delete method?
+    #     """
+    #     OAUTH_TOKEN = os.environ['BEEP_SPREAKS_TOKEN']
+    #     headers = {'Authorization': f'Bearer {OAUTH_TOKEN}', }
+    #     r = requests.get(
+    #         f'https://api.spreaker.com/v2/users/{self.user_id}/favorites?limit=3', headers=headers)
+    #     items = r.json().get('response').get('items')
+    #     shows = [items[i].get('show_id') for i in range(len(items))]
+    #     return shows
 
     def contact(self):
         """Returns all available user contact information
