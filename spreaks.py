@@ -103,3 +103,56 @@ class User:
         contact = {key: getattr(self, key, "") for key in contact_sources
                    if getattr(self, key) is not None}
         return contact
+
+
+class Show:
+    """Show class to hold all the information of a show retrieved from the API
+    """
+
+    def __init__(self, target) -> None:
+        """Creates a new Show instance by retrieveing info from the API
+        Arguments:
+        - target: either the 'show_id' or the 'permalink` of the show
+        """
+        show_info = self.__get_data(target=target)
+        # Explicit assignment for easier understanding
+        self.show_id = show_info.get('show_id')
+        self.title = show_info.get('title')
+        self.image_url = show_info.get('image_url')
+        self.image_original_url = show_info.get('image_original_url')
+        self.explicit = show_info.get('explicit')
+        self.author_id = show_info.get('author_id')
+        self.last_episode_at = show_info.get('last_episode_at')
+        self.site_url = show_info.get('site_url')
+        self.description = show_info.get('description')
+        self.category_id = show_info.get('category_id')
+        self.language = show_info.get('language')
+        self.permalink = show_info.get('permalink')
+        self.cover_image_url = show_info.get('cover_image_url')
+        self.cover_offset = show_info.get('cover_offset')
+        self.episodes_sorting = show_info.get('episodes_sorting')
+        # Skip 'author', since we already have the 'author_id'
+        self.website_url = show_info.get('website_url')
+        self.email = show_info.get('email')
+        self.facebook_url = show_info.get('facebook_url')
+        self.itunes_url = show_info.get('itunes_url')
+        self.twitter_name = show_info.get('twitter_name')
+        self.skype_name = show_info.get('skype_name')
+        self.tel_number = show_info.get('tel_number')
+        self.sms_number = show_info.get('sms_number')
+
+    def __repr__(self) -> str:
+        return f"{self.title} ({self.permalink} - {self.show_id}):\n{self.description}"
+
+    def __get_data(self, target=None):
+        """Get public show data
+        """
+        if target is None:
+            target = self.show_id
+        r = requests.get(f'https://api.spreaker.com/v2/shows/{target}')
+        response = r.json().get('response')
+        if r.status_code == 200:
+            show_info = response.get('show')
+            return show_info
+        else:
+            raise Exception('Code {code}: {messages}'.format(**r.get('error')))
